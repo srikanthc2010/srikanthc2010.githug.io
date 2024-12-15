@@ -1,0 +1,634 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PG-Nizampet Blance Sheet</title>   
+    <style>
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+        table, th, td {
+            border: 1px solid black;
+        }
+        th, td {
+            padding: 10px;
+            text-align: left;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        input[type="number"], input[type="text"] {
+            width: 100%;
+            padding: 5px;
+            margin: 5px;
+            text-align: left;
+        }
+        .group {
+            margin-bottom: 20px;
+        }
+
+     /* Add this CSS block to your existing styles */
+    .transaction-calculations input[type="text"] {
+        font-weight: bold;
+        color: #FFFFF7; /* Example: Bootstrap's danger red */
+        border: 2px solid #008000;
+        text-align: center;
+        background-color: #967969;
+    }
+
+     /* Style for the title and date picker */
+        .report-title {
+            display: flex;            
+            align-items: center;
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin-bottom: 20px; 
+        }
+
+        .report-title input[type="date"] {
+            font-size: 1rem;
+            padding: 5px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+
+.datePicker{
+	margin-left: 20px;
+}
+
+    /* Styling for the exportable content */
+    #exportable-content {
+      font-family: Arial, sans-serif;
+      padding: 20px;
+      border: 1px solid #ccc;
+      margin: 10px;
+      background-color: #f9f9f9;
+    }
+
+    #exportable-content h1 {
+      color: #333;
+      text-align: center;
+    }
+
+    #exportable-content p {
+      font-size: 14px;
+      margin: 5px 0;
+    }
+
+    /* Button styling */
+    button {
+      padding: 10px 20px;
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      cursor: pointer;
+      font-size: 16px;
+      margin: 10px;
+    }
+
+    button:hover {
+      background-color: #45a049;
+    }
+    </style>
+</head>
+<body>
+  <!-- Content to be exported to PDF -->
+  <div id="exportable-content">
+  <div class="message" id="message"></div>
+  <!-- Include the html2pdf.js library -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.9.2/html2pdf.bundle.js"></script>
+
+  <!-- Button to trigger PDF export -->
+  <button id="exportBtn">Export to PDF</button>
+
+  <!-- Include the html2pdf.js library -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.9.2/html2pdf.bundle.js"></script>
+    <h2>
+     <div class="report-title">
+        PG-Nizampet Report
+        <!-- Date Picker -->
+        <input type="date" class="datePicker" id="reportDate" onchange="loadDataForDate()">
+        <!-- Add Save Button -->
+    <button onclick="saveData()" id="saveButton" disabled>Save Data</button>    
+    
+    </div>
+    </h2>
+
+    <!-- Group for Opening Balance, System Bill Amount -->
+    <div class="group">
+        <h3>Basic Information</h3>
+        <table>
+            <tr>
+                <th colspan="2">Opening Balance</th>
+                <td colspan="2"><input type="number" id="openingBalance" value="0" oninput="calculateTotalSaleAmount()" disabled></td>
+            </tr>
+            <tr>
+                <th colspan="2">System Bill Amount</th>
+                <td colspan="2"><input type="number" id="systemBillAmount" value="0" oninput="calculateTotalSaleAmount()" disabled></td>
+            </tr>
+            <tr>
+                <th colspan="2">Hand Bills Amount</th>
+                <td colspan="2"><input type="number" id="handBillsAmount" value="0" oninput="calculateTotalSaleAmount()" disabled></td>
+            </tr>
+            <tr>
+                <th>Number of Carry Bags</th>
+                <td><input type="number" id="carryBagsAmount" value="0" oninput="calculateTotalSaleAmount()" disabled></td>            
+            </tr>
+            <tr>
+                <th colspan="2">Other Incomes Amount</th>
+                <td colspan="2"><input type="number" id="otherIncomes" value="0" oninput="calculateCashMatching()" disabled></td>
+            </tr>
+
+            <tr>
+                <th>Other Sale Amount</th>
+                <td><input type="number" id="otherSaleAmount" value="0" oninput="calculateTotalSaleAmount()" disabled></td>
+            </tr>
+        </table>
+    </div>
+
+    <!-- Group for Cash Details -->
+    <div class="group">
+        <h3>Cash Details</h3>
+        <table>
+            <tr>
+                <th>₹2000 Notes</th>
+                <td><input type="number" id="note2000" value="0" oninput="calculateCashTotal()" disabled></td>
+                <th>₹500 Notes</th>
+                <td><input type="number" id="note500" value="0" oninput="calculateCashTotal()" disabled></td>
+            </tr>
+            <tr>
+                <th>₹200 Notes</th>
+                <td><input type="number" id="note200" value="0" oninput="calculateCashTotal()" disabled></td>
+                <th>₹100 Notes</th>
+                <td><input type="number" id="note100" value="0" oninput="calculateCashTotal()" disabled></td>
+            </tr>
+            <tr>
+                <th>₹50 Notes</th>
+                <td><input type="number" id="note50" value="0" oninput="calculateCashTotal()" disabled></td>
+                <th>₹20 Notes</th>
+                <td><input type="number" id="note20" value="0" oninput="calculateCashTotal()" disabled></td>
+            </tr>
+            <tr>
+                <th>₹10 Notes</th>
+                <td><input type="number" id="note10" value="0" oninput="calculateCashTotal()" disabled></td>
+                <th>₹5 Notes</th>
+                <td><input type="number" id="note5" value="0" oninput="calculateCashTotal()" disabled></td>
+            </tr>
+            <tr>
+		<th>₹2 Notes</th>
+                <td><input type="number" id="note2" value="0" oninput="calculateCashTotal()" disabled></td>
+                <th>₹1 Coins</th>
+                <td><input type="number" id="note1" value="0" oninput="calculateCashTotal()" disabled></td>
+            </tr>
+            <tr>
+                <th>Cash Total</th>
+                <td colspan="3"><input type="number" id="cashTotal" value="0" readonly disabled></td>
+            </tr>
+            <tr>
+                <th>Cards Amount</th>
+                <td><input type="number" id="cardsAmount" value="0" oninput="calculateCashMatching() disabled"></td>
+                <th>UPI Amount</th>
+                <td><input type="number" id="upiAmount" value="0" oninput="calculateCashMatching()" disabled></td>
+            </tr>
+        </table>
+    </div>
+
+    <!-- Group for Total Sale Amount, Cash Matching, Tomorrow's Opening Balance, and Net Cash Taken by Sir -->
+    <div class="group">
+        <h3>Transaction Calculations</h3>
+        <table class="transaction-calculations">
+            <tr>
+                <th colspan="2">Total Sale Amount</th>
+                <td colspan="2"><input type="text" id="totalSaleAmount" value="0" readonly disabled></td>
+            </tr>
+            <tr>
+                <th colspan="2">Cash Matching or Not (Negative is Short)</th>
+                <td colspan="2"><input type="text" id="cashMatching" value="0" readonly disabled></td>
+            </tr>
+            <tr>
+                <th colspan="2">Tomorrow's Opening Balance</th>
+                <td colspan="2"><input type="text" id="tomorrowOpeningBalance" value="0" readonly disabled></td>
+            </tr>
+            <tr>
+                <th colspan="2">Net Cash Taken by Sir</th>
+                <td colspan="2"><input type="text" id="netCashTaken" value="0" readonly disabled></td>
+            </tr>
+        </table>
+    </div>
+
+    <!-- Other Input Fields for Expenses -->
+    <div class="group">
+        <h3>Other Expenses</h3>
+        <table>
+            <tr>
+                <th>Loyalty Points (LPs) Total Amt</th>
+                <td><input type="number" id="loyaltyPoints" value="0" oninput="calculateDailyExpenses()" disabled></td>
+                <th>Gift Vouchers (VGs) Coupons Total Amt</th>
+                <td><input type="number" id="giftVouchers" value="0" oninput="calculateDailyExpenses()" disabled></td>
+            </tr>
+            <tr>
+                <th>Actual System Discount Given to Customer</th>
+                <td><input type="number" id="actualSystemDiscount" value="0" oninput="calculateDailyExpenses()" disabled></td>
+                <th>Tea/Water/Snacks/Customer Return Amt</th>
+                <td><input type="number" id="teaSnacks" value="0" oninput="calculateDailyExpenses()" disabled></td>
+            </tr>
+            <tr>
+                <th>Shoe Repairs & Other Repair Amount</th>
+                <td><input type="number" id="shoeRepairs" value="0" oninput="calculateDailyExpenses()" disabled></td>
+                <th>Stationery/Lizone/Advertising/Other Amount</th>
+                <td><input type="number" id="stationeryAmount" value="0" oninput="calculateDailyExpenses()" disabled></td>
+            </tr>
+            <tr>
+                <th>Staff Advance Salary Amounts</th>
+                <td><input type="number" id="staffSalary" value="0" oninput="calculateDailyExpenses()" disabled></td>
+                <th>Sir's Taken Amount</th>
+                <td><input type="number" id="sirTaken" value="0" oninput="calculateDailyExpenses()" disabled></td>
+            </tr>
+            <tr>
+                <th>Discount Amount Given to Staff/Relatives/Friends/Customers</th>
+                <td><input type="number" id="discountGiven" value="0" oninput="calculateDailyExpenses()" disabled></td>
+            </tr>
+            <tr>
+                <th>All Daily Expenses Total Amount</th>
+                <td><input type="text" id="allDailyExpenses" value="0" readonly disabled></td>
+            </tr>
+        </table>
+    </div>
+</div>
+    <script>
+   // Format date as YYYY-MM-DD
+    function formatDate(date) {
+      return date.toLocaleDateString('en-CA');
+    }
+
+    // Initialize form with data
+    function initializeForm(selectedDate) { 	  
+      const yesterday = new Date(selectedDate);     
+      yesterday.setDate(yesterday.getDate() - 1);   
+      const todayKey = selectedDate;
+      const yesterdayKey = formatDate(yesterday);  
+      // Retrieve yesterday's data
+      const yesterdayData = JSON.parse(localStorage.getItem(yesterdayKey)) || {};
+
+      // Pre-fill Opening Balance if yesterday's Tomorrow's Opening Balance exists
+      const openingBalanceField = document.getElementById('openingBalance');      
+      if (yesterdayData['tomorrowOpeningBalance'] !== undefined) {
+        openingBalanceField.value = yesterdayData['tomorrowOpeningBalance'];
+      } else {
+        openingBalanceField.value = '';
+      }
+    }
+
+        function calculateTotalSaleAmount() {
+            const systemBillAmount = parseFloat(document.getElementById("systemBillAmount").value) || 0;
+            const handBillsAmount = parseFloat(document.getElementById("handBillsAmount").value) || 0;            
+            const carryBagsAmount = parseFloat(document.getElementById("carryBagsAmount").value) || 0;
+            const otherSaleAmount = parseFloat(document.getElementById("otherSaleAmount").value) || 0;
+            const actualSystemDiscount = parseFloat(document.getElementById("actualSystemDiscount").value) || 0;
+
+            // Calculate Total Sale Amount
+            const totalSaleAmount = systemBillAmount + handBillsAmount + carryBagsAmount + otherSaleAmount - actualSystemDiscount;
+            document.getElementById("totalSaleAmount").value = totalSaleAmount.toFixed(2);
+            calculateCashMatching();  // Recalculate cash matching after total sale amount update
+        }
+
+        function calculateDailyExpenses() {
+            const loyaltyPoints = parseFloat(document.getElementById("loyaltyPoints").value) || 0;
+            const giftVouchers = parseFloat(document.getElementById("giftVouchers").value) || 0;           
+            const teaSnacks = parseFloat(document.getElementById("teaSnacks").value) || 0;
+            const shoeRepairs = parseFloat(document.getElementById("shoeRepairs").value) || 0;
+            const stationeryAmount = parseFloat(document.getElementById("stationeryAmount").value) || 0;
+            const staffSalary = parseFloat(document.getElementById("staffSalary").value) || 0;
+            const sirTaken = parseFloat(document.getElementById("sirTaken").value) || 0;
+            const discountGiven = parseFloat(document.getElementById("discountGiven").value) || 0;
+
+            const totalDailyExpenses = loyaltyPoints + giftVouchers + teaSnacks + shoeRepairs + stationeryAmount + staffSalary + sirTaken + discountGiven;
+            document.getElementById("allDailyExpenses").value = totalDailyExpenses.toFixed(2);
+
+            calculateCashMatching()
+        }
+
+       function calculateCashTotal() {
+            const note2000 = parseFloat(document.getElementById("note2000").value) || 0;
+            const note500 = parseFloat(document.getElementById("note500").value) || 0;
+            const note200 = parseFloat(document.getElementById("note200").value) || 0;
+            const note100 = parseFloat(document.getElementById("note100").value) || 0;
+            const note50 = parseFloat(document.getElementById("note50").value) || 0;
+            const note20 = parseFloat(document.getElementById("note20").value) || 0;
+            const note10 = parseFloat(document.getElementById("note10").value) || 0;
+            const note5 = parseFloat(document.getElementById("note5").value) || 0;
+	    const note2 = parseFloat(document.getElementById("note2").value) || 0;
+            const note1 = parseFloat(document.getElementById("note1").value) || 0;
+
+            // Calculate Cash Total
+            const cashTotal = (note2000 * 2000) + (note500 * 500) + (note200 * 200) + (note100 * 100) +
+                (note50 * 50) + (note20 * 20) + (note10 * 10) + (note5 * 5) + (note2 * 2) + (note1 * 1);
+
+            document.getElementById("cashTotal").value = cashTotal.toFixed(2);
+            // Recalculate Tomorrow's Opening Balance after updating cash total
+            calculateTomorrowOpeningBalance();
+
+            calculateNetCashTaken()
+
+            calculateCashMatching()
+
+        }       
+
+        function calculateTomorrowOpeningBalance() {
+            const cashTotal = parseFloat(document.getElementById("cashTotal").value.replace('₹', '')) || 0;
+            const note2000 = parseInt(document.getElementById("note2000").value) || 0;
+            const note500 = parseInt(document.getElementById("note500").value) || 0;
+
+            const tomorrowOpeningBalance = cashTotal - (note2000 * 2000) - (note500 * 500);
+            document.getElementById("tomorrowOpeningBalance").value = tomorrowOpeningBalance.toFixed(2);
+        }
+
+        function calculateCashMatching() {
+            const loyaltyPoints = parseFloat(document.getElementById("loyaltyPoints").value) || 0;
+            const giftVouchers = parseFloat(document.getElementById("giftVouchers").value) || 0;
+            const systemDiscount = parseFloat(document.getElementById("actualSystemDiscount").value) || 0;
+            const teaSnacks = parseFloat(document.getElementById("teaSnacks").value) || 0;
+            const shoeRepairs = parseFloat(document.getElementById("shoeRepairs").value) || 0;
+            const stationeryAmount = parseFloat(document.getElementById("stationeryAmount").value) || 0;
+            const staffSalary = parseFloat(document.getElementById("staffSalary").value) || 0;
+            const sirTaken = parseFloat(document.getElementById("sirTaken").value) || 0;
+            const cashTotal = parseFloat(document.getElementById("cashTotal").value.replace('₹', '')) || 0;
+            const cardsAmount = parseFloat(document.getElementById("cardsAmount").value) || 0;
+            const upiAmount = parseFloat(document.getElementById("upiAmount").value) || 0;
+            const totalSaleAmount = parseFloat(document.getElementById("totalSaleAmount").value) || 0;
+            const otherIncomesAmount = parseFloat(document.getElementById("otherIncomes").value) || 0;
+            const openingBalance = parseFloat(document.getElementById("openingBalance").value) || 0;
+
+            // Calculate Cash Matching or Not
+            const cashMatching = 
+                (loyaltyPoints + giftVouchers + systemDiscount + teaSnacks + shoeRepairs + stationeryAmount + staffSalary +
+                 sirTaken + cashTotal + cardsAmount + upiAmount) - 
+                (totalSaleAmount + otherIncomesAmount + openingBalance) - systemDiscount;
+
+            // Display the result
+            document.getElementById("cashMatching").value = cashMatching.toFixed(2);
+        }
+
+
+         function calculateNetCashTaken() {
+            const cashTotal = parseFloat(document.getElementById("cashTotal").value.replace('₹', '')) || 0;
+            const tomorrowOpeningBalance = parseFloat(document.getElementById("tomorrowOpeningBalance").value) || 0;
+            
+            // Net Cash Taken by Sir
+            const netCashTaken = cashTotal - tomorrowOpeningBalance;
+            document.getElementById("netCashTaken").value = "₹" + netCashTaken.toFixed(2);
+        }
+
+function saveData() {
+                  const selectedDate = document.getElementById("reportDate").value;
+
+                 if (!selectedDate) {
+                      alert("Please select a date before saving!");
+                      return;
+                   }
+            const data = {
+                reportDate: document.getElementById("reportDate").value,
+                openingBalance: parseFloat(document.getElementById("openingBalance").value) || 0,
+                systemBillAmount: parseFloat(document.getElementById("systemBillAmount").value) || 0,
+                handBillsAmount: parseFloat(document.getElementById("handBillsAmount").value) || 0,
+                carryBagsAmount: parseFloat(document.getElementById("carryBagsAmount").value) || 0,
+                otherIncomes: parseFloat(document.getElementById("otherIncomes").value) || 0,
+                otherSaleAmount: parseFloat(document.getElementById("otherSaleAmount").value) || 0,
+                notes: {
+                    note2000: parseFloat(document.getElementById("note2000").value) || 0,
+                    note500: parseFloat(document.getElementById("note500").value) || 0,
+                    note200: parseFloat(document.getElementById("note200").value) || 0,
+                    note100: parseFloat(document.getElementById("note100").value) || 0,
+                    note50: parseFloat(document.getElementById("note50").value) || 0,
+                    note20: parseFloat(document.getElementById("note20").value) || 0,
+                    note10: parseFloat(document.getElementById("note10").value) || 0,
+                    note5: parseFloat(document.getElementById("note5").value) || 0,
+		    note2: parseFloat(document.getElementById("note2").value) || 0,
+                    note1: parseFloat(document.getElementById("note1").value) || 0
+                },
+                cashTotal: parseFloat(document.getElementById("cashTotal").value) || 0,
+                cardsAmount: parseFloat(document.getElementById("cardsAmount").value) || 0,
+                upiAmount: parseFloat(document.getElementById("upiAmount").value) || 0,
+                totalSaleAmount: parseFloat(document.getElementById("totalSaleAmount").value) || 0,
+                cashMatching: parseFloat(document.getElementById("cashMatching").value) || 0,
+                tomorrowOpeningBalance: parseFloat(document.getElementById("tomorrowOpeningBalance").value) || 0,
+                netCashTaken: parseFloat(document.getElementById("netCashTaken").value.replace('₹', '')) || 0,
+                dailyExpenses: {
+                    loyaltyPoints: parseFloat(document.getElementById("loyaltyPoints").value) || 0,
+                    giftVouchers: parseFloat(document.getElementById("giftVouchers").value) || 0,
+                    actualSystemDiscount: parseFloat(document.getElementById("actualSystemDiscount").value) || 0,
+                    teaSnacks: parseFloat(document.getElementById("teaSnacks").value) || 0,
+                    shoeRepairs: parseFloat(document.getElementById("shoeRepairs").value) || 0,
+                    stationeryAmount: parseFloat(document.getElementById("stationeryAmount").value) || 0,
+                    staffSalary: parseFloat(document.getElementById("staffSalary").value) || 0,
+                    sirTaken: parseFloat(document.getElementById("sirTaken").value) || 0,
+                    discountGiven: parseFloat(document.getElementById("discountGiven").value) || 0
+                },
+                allDailyExpenses: parseFloat(document.getElementById("allDailyExpenses").value) || 0
+            };
+
+            // Save data to localStorage
+            localStorage.setItem(selectedDate, JSON.stringify(data));
+
+            // Display JSON output
+            // document.getElementById("jsonOutput").textContent = JSON.stringify(data, null, 4);
+
+            	const message = document.getElementById('message');
+      	   	message.textContent = `Data saved for ${selectedDate}.`;
+      		message.style.color = 'green'; 		
+        }
+
+function loadDataForDate() {
+            const selectedDate = document.getElementById("reportDate").value;
+	    const today = new Date().toLocaleDateString('en-CA'); // Fetches date in YYYY-MM-DD format in local timezone;            
+            
+	    //Enable/Disable fields based on the selected date
+            const isToday = selectedDate === today;           
+
+            if (!selectedDate) {
+                alert("Please select a date!");
+                return;
+            }
+
+            const savedData = localStorage.getItem(selectedDate);
+            if (savedData) {
+		setFieldEditability(isToday);
+                const data = JSON.parse(savedData);
+                //document.getElementById("openingBalance").value = data.openingBalance || "";
+                document.getElementById("systemBillAmount").value = data.systemBillAmount || "";
+                document.getElementById("handBillsAmount").value = data.handBillsAmount || "";
+                document.getElementById("carryBagsAmount").value = data.carryBagsAmount || "";
+                document.getElementById("otherIncomes").value = data.otherIncomes || "";
+		document.getElementById("otherSaleAmount").value = data.otherSaleAmount || "";
+                document.getElementById("note2000").value = data.notes.note2000 || "";
+                document.getElementById("note500").value = data.notes.note500 || "";
+		document.getElementById("note200").value = data.notes.note200 || "";
+		document.getElementById("note100").value = data.notes.note100 || "";
+                document.getElementById("note50").value = data.notes.note50 || "";
+		document.getElementById("note20").value = data.notes.note20 || "";
+		document.getElementById("note10").value = data.notes.note10 || "";
+		document.getElementById("note5").value = data.notes.note5 || "";
+		document.getElementById("note2").value = data.notes.note2 || "";
+		document.getElementById("note1").value = data.notes.note1 || "";
+		document.getElementById("cashTotal").value = data.cashTotal || "";
+		document.getElementById("cardsAmount").value = data.cardsAmount || "";
+                document.getElementById("upiAmount").value = data.upiAmount || "";                
+                document.getElementById("totalSaleAmount").value = data.totalSaleAmount || "";
+		document.getElementById("cashMatching").value = data.cashMatching || "";
+		document.getElementById("tomorrowOpeningBalance").value = data.tomorrowOpeningBalance || "";
+		document.getElementById("netCashTaken").value = data.netCashTaken || "";
+		document.getElementById("loyaltyPoints").value = data.dailyExpenses.loyaltyPoints || "";
+		document.getElementById("giftVouchers").value = data.dailyExpenses.giftVouchers || "";
+		document.getElementById("actualSystemDiscount").value = data.dailyExpenses.actualSystemDiscount || "";
+		document.getElementById("teaSnacks").value = data.dailyExpenses.teaSnacks || "";
+		document.getElementById("shoeRepairs").value = data.dailyExpenses.shoeRepairs || "";
+		document.getElementById("stationeryAmount").value = data.dailyExpenses.stationeryAmount || "";
+		document.getElementById("staffSalary").value = data.dailyExpenses.staffSalary || "";
+		document.getElementById("sirTaken").value = data.dailyExpenses.sirTaken || "";
+		document.getElementById("discountGiven").value = data.dailyExpenses.discountGiven || "";
+		document.getElementById("allDailyExpenses").value = data.allDailyExpenses || "";  
+                const message = document.getElementById('message');
+      	   	message.textContent = `Data found for the selected date. ${selectedDate}.`;
+      		message.style.color = 'green'; 
+            } else {
+                // Clear fields if no data exists
+                //document.getElementById("openingBalance").value = "";
+                document.getElementById("systemBillAmount").value = "";
+                document.getElementById("handBillsAmount").value = "";
+                document.getElementById("carryBagsAmount").value = "";
+                document.getElementById("otherIncomes").value = "";
+		document.getElementById("otherSaleAmount").value = "";
+                document.getElementById("note2000").value = "";
+                document.getElementById("note500").value = "";
+		document.getElementById("note200").value = "";
+		document.getElementById("note100").value = "";
+                document.getElementById("note50").value = "";
+		document.getElementById("note20").value = "";
+		document.getElementById("note10").value = "";
+		document.getElementById("note5").value = "";
+		document.getElementById("note2").value = "";
+		document.getElementById("note1").value = "";
+		document.getElementById("cashTotal").value = "";
+		document.getElementById("cardsAmount").value = "";
+                document.getElementById("upiAmount").value = "";                
+                document.getElementById("totalSaleAmount").value = "";
+		document.getElementById("cashMatching").value = "";
+		document.getElementById("tomorrowOpeningBalance").value = "";
+		document.getElementById("netCashTaken").value = "";
+		document.getElementById("loyaltyPoints").value = "";
+		document.getElementById("giftVouchers").value = "";
+		document.getElementById("actualSystemDiscount").value = "";
+		document.getElementById("teaSnacks").value = "";
+		document.getElementById("shoeRepairs").value = "";
+		document.getElementById("stationeryAmount").value = "";
+		document.getElementById("staffSalary").value = "";
+		document.getElementById("sirTaken").value = "";
+		document.getElementById("discountGiven").value = "";
+		document.getElementById("allDailyExpenses").value = ""; 
+                setFieldEditability((savedData==null || isToday));
+                const message = document.getElementById('message');
+      	   	message.textContent = `No data found for the selected date. ${selectedDate}.`;
+      		message.style.color = 'red';                
+            }
+     		// Re-initialize form to reflect updated data
+      		initializeForm(selectedDate);
+        }
+
+	function setFieldEditability(isEditable) {                         
+            	// Enable/Disable Save button
+	    	document.getElementById("openingBalance").disabled = !isEditable;
+            	document.getElementById("systemBillAmount").disabled = !isEditable;
+            	document.getElementById("cashTotal").disabled = !isEditable;
+            	document.getElementById("saveButton").disabled = !isEditable;                
+                document.getElementById("handBillsAmount").disabled = !isEditable;
+                document.getElementById("carryBagsAmount").disabled = !isEditable;
+                document.getElementById("otherIncomes").disabled = !isEditable;
+		document.getElementById("otherSaleAmount").disabled = !isEditable;
+                document.getElementById("note2000").disabled = !isEditable;
+                document.getElementById("note500").disabled = !isEditable;
+		document.getElementById("note200").disabled = !isEditable;
+		document.getElementById("note100").disabled = !isEditable;
+                document.getElementById("note50").disabled = !isEditable;
+		document.getElementById("note20").disabled = !isEditable;
+		document.getElementById("note10").disabled = !isEditable;
+		document.getElementById("note5").disabled = !isEditable;
+ 		document.getElementById("note2").disabled = !isEditable;
+		document.getElementById("note1").disabled = !isEditable;		
+		document.getElementById("cardsAmount").disabled = !isEditable;
+                document.getElementById("upiAmount").disabled = !isEditable;                
+                document.getElementById("totalSaleAmount").disabled = !isEditable;
+		document.getElementById("cashMatching").disabled = !isEditable;
+		document.getElementById("tomorrowOpeningBalance").disabled = !isEditable;
+		document.getElementById("netCashTaken").disabled = !isEditable;
+		document.getElementById("loyaltyPoints").disabled = !isEditable;
+		document.getElementById("giftVouchers").disabled = !isEditable;
+		document.getElementById("actualSystemDiscount").disabled = !isEditable;
+		document.getElementById("teaSnacks").disabled = !isEditable;
+		document.getElementById("shoeRepairs").disabled = !isEditable;
+		document.getElementById("stationeryAmount").disabled = !isEditable;
+		document.getElementById("staffSalary").disabled = !isEditable;
+		document.getElementById("sirTaken").disabled = !isEditable;
+		document.getElementById("discountGiven").disabled = !isEditable;
+		document.getElementById("allDailyExpenses").disabled = !isEditable;                
+
+        }   
+
+   // Event listener for button click to export content to PDF
+    document.getElementById("exportBtn").addEventListener("click", function() {
+      const element = document.getElementById("exportable-content");
+
+      // Using html2pdf.js to convert the HTML content to PDF
+      html2pdf()
+        .from(element)            // Specify the content to export
+        .set({
+          margin: [10, 10, 20, 10],  // Increased bottom margin
+          filename: "data-report.pdf",  // Set the name of the PDF file
+          image: { type: 'jpeg', quality: 0.98 },  // Image settings
+          html2canvas: { 
+            scale: 2,            // Increase scale for higher quality
+            letterRendering: true,  // Helps with better rendering of letters
+            useCORS: true        // Allow content to be fetched across domains
+          },
+          jsPDF: { 
+            unit: "mm", 
+            format: "a4",         // Set the PDF format to A4
+            orientation: "portrait" // Set the orientation to portrait
+          }
+        })
+        .save()                    // Automatically save the PDF
+        .catch(function(error) {
+          console.error("Error generating PDF:", error);
+        });
+    });
+
+    const cashValueField = document.getElementById('cashMatching');
+
+    // Function to check the value and update styles
+    function updateFieldStyle() {
+      const value = parseFloat(cashValueField.value);
+	alrert(value);
+      if (value < 0) {
+        // Apply red border and text for negative values
+        cashValueField.classList.add('negative');
+      } else {
+        // Remove red styling for non-negative values
+        cashValueField.classList.remove('negative');
+      }
+    }
+
+    // Attach event listeners to detect changes
+    cashValueField.addEventListener('input', updateFieldStyle);
+
+    document.getElementById('cashMatching').addEventListener('click', () => {
+      const value = parseFloat(cashValueField.value);      
+    });   
+
+  // Initialize styles on page load
+      updateFieldStyle();
+    </script>
+</body>
+</html>
